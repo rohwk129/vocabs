@@ -3,150 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>English Voca Master</title>
+    <title>English Voca (60)</title>
     <style>
-        body {
-            font-family: 'Malgun Gothic', sans-serif;
-            background-color: #f8f9fa;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-
-        h1 { color: #202124; margin-top: 20px; margin-bottom: 20px; }
-
-        /* 버튼 그룹 */
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            width: 100%;
-            max-width: 500px;
-        }
-
-        button {
-            flex: 1;
-            border: none;
-            padding: 15px;
-            font-size: 15px;
-            font-weight: bold;
-            border-radius: 12px;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: all 0.2s;
-        }
-
+        body { font-family: 'Malgun Gothic', sans-serif; background-color: #f8f9fa; margin: 0; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        h1 { color: #202124; }
+        
+        .btn-group { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; max-width: 500px; }
+        button { flex: 1; border: none; padding: 15px; font-size: 14px; font-weight: bold; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.2s; }
+        
         #shuffle-btn { background-color: #34a853; color: white; }
         #toggle-all-btn { background-color: #1a73e8; color: white; }
         
-        button:active { transform: scale(0.95); }
+        /* 페이지 조절 버튼 스타일 */
+        .page-ctrl { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+        .page-btn { background-color: #fff; border: 1px solid #ddd; padding: 8px 15px; border-radius: 8px; cursor: pointer; }
+        .page-btn:disabled { background-color: #eee; cursor: not-allowed; }
 
-        .voca-table {
-            width: 100%;
-            max-width: 500px;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-        }
-
+        .voca-table { width: 100%; max-width: 500px; border-collapse: collapse; background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 8px 30px rgba(0,0,0,0.08); }
         .voca-table th { background-color: #f1f3f4; color: #5f6368; padding: 15px; }
-        .voca-table td { padding: 18px 15px; border-bottom: 1px solid #f1f1f1; text-align: center; font-size: 17px; }
+        .voca-table td { padding: 15px; border-bottom: 1px solid #f1f1f1; text-align: center; }
 
-        .word-en { font-weight: bold; color: #1a73e8; }
-        .meaning { cursor: pointer; color: #ea4335; font-weight: 500; transition: 0.2s; border-radius: 5px; }
-
-        /* 가리기 스타일 */
+        .word-en { font-weight: bold; color: #1a73e8; font-size: 18px; }
+        .meaning { cursor: pointer; color: #ea4335; font-weight: 500; padding: 5px; border-radius: 5px; display: block; }
         .hidden { background-color: #acd598; color: #acd598; }
-
-        .footer { margin-top: 20px; color: #70757a; font-size: 0.85em; text-align: center; line-height: 1.6; }
+        
+        .footer { margin-top: 20px; color: #70757a; font-size: 0.85em; text-align: center; }
     </style>
 </head>
 <body>
 
-    <h1>English Day 1</h1>
+    <h1>English Word List</h1>
     
     <div class="btn-group">
         <button id="shuffle-btn">🔄 순서 섞기</button>
         <button id="toggle-all-btn">👁️ 전체 가리기/보기</button>
     </div>
 
+    <div class="page-ctrl">
+        <button class="page-btn" id="prev-btn">◀ 이전</button>
+        <span id="page-info">1 / 2</span>
+        <button class="page-btn" id="next-btn">다음 ▶</button>
+    </div>
+
     <table class="voca-table">
         <thead>
             <tr>
-                <th>English</th>
-                <th>Meaning</th>
+                <th>단어</th>
+                <th>뜻</th>
             </tr>
         </thead>
         <tbody id="voca-body"></tbody>
     </table>
 
-    <div class="footer">
-        각 단어의 뜻을 터치하면 개별적으로 보입니다.<br>
-        <b>전체 가리기/보기</b> 버튼으로 일괄 제어하세요!
-    </div>
+    <p class="footer">뜻을 터치하면 정답이 보입니다.</p>
 
-   <script>
+    <script>
         let words = [
-            { fr: "life", ko: "삶, 인생" }, { fr: "job", ko: "일, 직업" }, { fr: "country", ko: "나라, 시골" },
-            { fr: "earth", ko: "지구, 땅" }, { fr: "problem", ko: "문제" }, { fr: "way", ko: "방법, 길" },
-            { fr: "language", ko: "언어" }, { fr: "dialog", ko: "대화" }, { fr: "story", ko: "이야기, 층" },
-            { fr: "lot", ko: "다량, 많이" }, { fr: "name", ko: "이름(을 붙이다)" }, { fr: "hand", ko: "손, 건네주다" },
-            { fr: "place", ko: "장소, 두다" }, { fr: "practice", ko: "연습(하다)" }, { fr: "work", ko: "일(하다)" },
-            { fr: "use", ko: "사용(하다)" }, { fr: "kind", ko: "종류, 친절한" }, { fr: "have", ko: "가지고있다, 먹다" },
-            { fr: "make", ko: "만들다" }, { fr: "let", ko: "하게 하다, 허락하다" }, { fr: "get", ko: "얻다, 이르다, 되다" },
-            { fr: "take", ko: "데려가다, 필요로 하다" }, { fr: "live", ko: "살다, 살아있는" }, { fr: "different", ko: "다른" },
-            { fr: "important", ko: "중요한" }, { fr: "other", ko: "다른, 그 밖의" }, { fr: "right", ko: "옳은, 오른쪽의" },
-            { fr: "sure", ko: "확신하는, 물론" }, { fr: "too", ko: "너무, ~도 또한" }, { fr: "well", ko: "잘, 건강한, 우물" }
+            { en: "life", ko: "삶, 인생" }, { en: "job", ko: "일,직업" }, { en: "country", ko: "나라, 시골" },
+            { en: "earth", ko: "지구, 땅" }, { en: "problem", ko: "문제" }, { en: "way", ko: "방법, 길" },
+            { en: "language", ko: "언어" }, { en: "dialog", ko: "대화" }, { en: "story", ko: "이야기, 층" },
+            { en: "lot", ko: "다량, 많이" }, { en: "name", ko: "이름(을 붙이다)" }, { en: "hand", ko: "손, 건네주다" },
+            { en: "place", ko: "장소, 두다" }, { en: "practice", ko: "연습(하다)" }, { en: "work", ko: "일(하다)" },
+            { en: "use", ko: "사용(하다)" }, { en: "kind", ko: "종류, 친절한" }, { en: "have", ko: "가지고있다, 먹다" },
+            { en: "make", ko: "만들다" }, { en: "let", ko: "하게 하다, 허락하다" }, { en: "get", ko: "얻다, 이르다, 되다" },
+            { en: "take", ko: "데려가다, 필요로 하다" }, { en: "live", ko: "살다, 살아있는" }, { en: "different", ko: "다른" },
+            { en: "important", ko: "중요한" }, { en: "other", ko: "다른, 그 밖의" }, { en: "right", ko: "옳은, 오른쪽의" },
+            { en: "sure", ko: "확신하는, 물론" }, { en: "too", ko: "너무, ~도 또한" }, { en: "well", ko: "잘, 건강한, 우물" },
+            { en: "person", ko: "사람, 인물" }, { en: "clothes", ko: "옷, 의복" }, { en: "movie", ko: "영화" },
+            { en: "activity", ko: "활동" }, { en: "example", ko: "예, 모범" }, { en: "letter", ko: "편지, 글자" },
+            { en: "fire", ko: "불, 화재" }, { en: "minute", ko: "분, 순간" }, { en: "part", ko: "부분, 가르다" },
+            { en: "plan", ko: "계획(하다)" }, { en: "plant", ko: "식물, 공장" }, { en: "park", ko: "공원, 주차하다" },
+            { en: "call", ko: "통화하다, 부르다" }, { en: "try", ko: "시도하다, 노력하다" }, { en: "need", ko: "필요(하다)" },
+            { en: "fun", ko: "재미, 장난" }, { en: "future", ko: "미래" }, { en: "keep", ko: "유지하다, 지키다" },
+            { en: "listen", ko: "듣다" }, { en: "find", ko: "찾아내다, 발견하다" }, { en: "learn", ko: "배우다, 알아내다" },
+            { en: "mean", ko: "의미하다" }, { en: "last", ko: "지난, 마지막의" }, { en: "any", ko: "무슨, 약간의" },
+            { en: "each", ko: "각각" }, { en: "another", ko: "또 하나의" }, { en: "same", ko: "같은" },
+            { en: "hard", ko: "단단한, 어려운" }, { en: "also", ko: "~도 또한" }, { en: "really", ko: "참으로, 정말" }
         ];
 
+        let currentPage = 1;
+        const itemsPerPage = 30;
+        let allHidden = true;
+
         const tbody = document.getElementById('voca-body');
-        const shuffleBtn = document.getElementById('shuffle-btn');
-        const toggleBtn = document.getElementById('toggle-all-btn');
-        
-        let allHidden = true; // 현재 상태 저장용 변수
+        const pageInfo = document.getElementById('page-info');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
 
         function renderWords() {
             tbody.innerHTML = '';
-            words.forEach(word => {
+            
+            // 현재 페이지에 해당하는 데이터만 추출
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pagedWords = words.slice(start, end);
+
+            pagedWords.forEach(word => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td class="word-en">${word.fr}</td>
-                    <td class="meaning ${allHidden ? 'hidden' : ''}">${word.ko}</td>
+                    <td class="word-en">${word.en}</td>
+                    <td><span class="meaning ${allHidden ? 'hidden' : ''}">${word.ko}</span></td>
                 `;
                 tbody.appendChild(row);
             });
+
+            // 페이지 정보 업데이트
+            pageInfo.innerText = `${currentPage} / ${Math.ceil(words.length / itemsPerPage)}`;
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage === Math.ceil(words.length / itemsPerPage);
         }
 
-        // 순서 섞기
-        shuffleBtn.addEventListener('click', () => {
-            for (let i = words.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [words[i], words[j]] = [words[j], words[i]];
-            }
+        // 버튼 이벤트들
+        document.getElementById('shuffle-btn').onclick = () => {
+            words.sort(() => Math.random() - 0.5);
+            currentPage = 1;
             renderWords();
-        });
+        };
 
-        // 전체 가리기/보기 토글
-        toggleBtn.addEventListener('click', () => {
-            const meanings = document.querySelectorAll('.meaning');
-            allHidden = !allHidden; // 상태 반전
-            
-            meanings.forEach(m => {
-                if (allHidden) m.classList.add('hidden');
-                else m.classList.remove('hidden');
-            });
-        });
+        document.getElementById('toggle-all-btn').onclick = () => {
+            allHidden = !allHidden;
+            renderWords();
+        };
 
-        // 개별 클릭 이벤트
-        tbody.addEventListener('click', (e) => {
-            if (e.target.classList.contains('meaning')) {
-                e.target.classList.toggle('hidden');
-            }
-        });
+        prevBtn.onclick = () => { if(currentPage > 1) { currentPage--; renderWords(); } };
+        nextBtn.onclick = () => { if(currentPage < words.length/itemsPerPage) { currentPage++; renderWords(); } };
+
+        tbody.onclick = (e) => {
+            if (e.target.classList.contains('meaning')) e.target.classList.toggle('hidden');
+        };
 
         renderWords();
     </script>
